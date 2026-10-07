@@ -79,6 +79,15 @@ FACT_LEVEL_MAX_AGENT = 3  # level 4 diparkir di MVP (D19)
 MANUAL_FORMATS = ("reels",)
 MANUAL_KANALS = ("fb_reels",)
 
+# --- status baris notification_outbox (D18) ----------------------------
+# App hanya menulis `kirim`. Pengirim (poller @hermes) mengklaim baris secara
+# atomik supaya tidak ada pengiriman dobel: kirim -> proses -> terkirim|gagal.
+OUTBOX_KIRIM = "kirim"
+OUTBOX_PROSES = "proses"
+OUTBOX_TERKIRIM = "terkirim"
+OUTBOX_GAGAL = "gagal"
+OUTBOX_STATUSES = (OUTBOX_KIRIM, OUTBOX_PROSES, OUTBOX_TERKIRIM, OUTBOX_GAGAL)
+
 
 class StrEnum(str, enum.Enum):
     def __str__(self) -> str:  # pragma: no cover - kenyamanan debug

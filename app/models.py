@@ -124,7 +124,11 @@ class IdempotencyKey(Base):
 
 
 class NotificationOutbox(Base):
-    """App hanya MENULIS baris; pengirimnya poller @hermes (D18)."""
+    """App hanya MENULIS baris; pengirimnya poller @hermes (D18).
+
+    Klaim atomik: `status='proses'` + `claim_token` + `claimed_at`. Lihat
+    `app/services/notify.py` dan `docs/POLLER-OUTBOX.md`.
+    """
 
     __tablename__ = "notification_outbox"
 
@@ -132,11 +136,17 @@ class NotificationOutbox(Base):
     kind: Mapped[str] = mapped_column(String(40), nullable=False)
     content_id: Mapped[int | None] = mapped_column(Integer)
     payload_json: Mapped[str] = mapped_column(Text, nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default="kirim", nullable=False)
+    status: Mapped[str] = mapped_column(
+        String(20), default=enums.OUTBOX_KIRIM, nullable=False
+    )
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_error: Mapped[str | None] = mapped_column(String(500))
+    claim_token: Mapped[str | None] = mapped_column(String(36))
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime)
     created_at: Mapped[datetime | None] = mapped_column(DateTime)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+    __table_args__ = (Index("ix_outbox_status_id", "status", "id"),)
 
 
 class ContentItem(Base):

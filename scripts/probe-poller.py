@@ -20,10 +20,10 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from app import enums  # noqa: E402
 from app.db import SessionLocal  # noqa: E402
-from app.models import ContentItem  # noqa: E402
+from app.models import ContentItem, NotificationOutbox  # noqa: E402
 from app.services import checklist, content as content_service  # noqa: E402
 from app.timeutil import today_wib  # noqa: E402
-from sqlalchemy import select  # noqa: E402
+from sqlalchemy import func, select  # noqa: E402
 
 BASE = os.environ.get("BASE", "http://127.0.0.1:8098")
 TOKEN = os.environ["TOKEN"]
@@ -54,6 +54,11 @@ def lengkapi(db, item) -> None:
 
 def main() -> int:
     klien = httpx.Client(base_url=BASE, timeout=20.0)
+
+    # Jejak outbox: probe ini memicu notifikasi nyata (approve/posted). Catat id awal
+    # supaya baris uji tidak ikut terkirim poller ke Telegram Boss.
+    with SessionLocal() as db:
+        id_awal_outbox = int(db.scalar(select(func.max(NotificationOutbox.id))) or 0)
 
     # ---- 0. Siapkan: 1 item milik agent (paling baru) + jadwalkan oleh Boss
     with SessionLocal() as db:
@@ -128,6 +133,24 @@ def main() -> int:
     )
     r2 = klien.get("/api/v1/contents", params={"cursor": j["cursor"]}, headers=HEAD)
     cek("poll lanjutan (cursor terakhir) → 200 & kosong", r2.status_code == 200 and r2.json()["data"] == [], r2.text[:200])
+
+    print("== D. Jejak outbox (pre-flight poller D18) ==")
+    with SessionLocal() as db:
+        rows = list(
+            db.scalars(select(NotificationOutbox).where(NotificationOutbox.id > id_awal_outbox))
+        )
+        ids = [row.id for row in rows]
+        status = sorted({row.status for row in rows})
+        print(f"  notifikasi baru dari probe ini: {len(ids)} baris — id {ids} status {status}")
+        if ids and os.environ.get("PROBE_PURGE_OUTBOX") == "1":
+            for row in rows:
+                db.delete(row)
+            db.commit()
+            print("  PROBE_PURGE_OUTBOX=1 → baris uji dihapus, poller tidak akan mengirimnya")
+        elif ids:
+            print("  ⚠ hapus dulu sebelum poller di-arm: PROBE_PURGE_OUTBOX=1 (atau purge manual)")
+        else:
+            print("  bersih: tidak ada baris uji tertinggal")
 
     print()
     print("---------------------------------------------")

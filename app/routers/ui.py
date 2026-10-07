@@ -170,18 +170,11 @@ def dashboard(request: Request, db: Session = Depends(get_db), user: User = Depe
     token_badge = db.scalar(
         select(func.max(ApiToken.last_used_at)).where(ApiToken.revoked_at.is_(None))
     )
-    outbox_gagal = int(
-        db.scalar(
-            select(func.count(NotificationOutbox.id)).where(NotificationOutbox.status == "gagal")
-        )
-        or 0
-    )
-    outbox_menunggu = int(
-        db.scalar(
-            select(func.count(NotificationOutbox.id)).where(NotificationOutbox.status == "kirim")
-        )
-        or 0
-    )
+    outbox_ringkas = notify.hitung_status(db)
+    # "menunggu" = belum diklaim + sedang diklaim poller; baris `proses` yang macet
+    # harus tetap kelihatan di dashboard, bukan hilang dari hitungan.
+    outbox_gagal = outbox_ringkas[enums.OUTBOX_GAGAL]
+    outbox_menunggu = outbox_ringkas[enums.OUTBOX_KIRIM] + outbox_ringkas[enums.OUTBOX_PROSES]
     kpi = hitung_kpi(db)
 
     return render(

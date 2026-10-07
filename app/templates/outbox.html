@@ -17,6 +17,7 @@
       <td>{% if o.content_id %}<a href="/contents/{{ o.content_id }}">#{{ o.content_id }}</a>{% else %}—{% endif %}</td>
       <td>
         {% if o.status == 'terkirim' %}<span class="badge badge-ok">terkirim</span>
+        {% elif o.status == 'proses' %}<span class="badge badge-warn">proses (diklaim poller)</span>
         {% elif o.status == 'gagal' %}<span class="badge badge-err">gagal</span>
         {% else %}<span class="badge badge-warn">menunggu</span>{% endif %}
       </td>
