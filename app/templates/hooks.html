@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Registry hook <span class="badge">{{ items|length }}</span></h1>
+<p class="hint">Anti-duplikasi: 3 kata pertama hook dinormalisasi (lowercase, tanpa tanda baca).
+Baris <code>seed</code> dari bible §21 tidak pernah dilepas; baris <code>konten</code> dilepas saat konten diarsipkan.</p>
+<div class="card">
+<table>
+  <thead><tr><th>hook_norm</th><th>asal</th><th>konten</th><th>dibuat</th></tr></thead>
+  <tbody>
+  {% for h in items %}
+    <tr>
+      <td>{{ h.hook_norm }}</td>
+      <td><span class="badge {{ 'badge-ok' if h.asal == 'seed' }}">{{ h.asal }}</span></td>
+      <td>{% if h.content_id %}<a href="/contents/{{ h.content_id }}">#{{ h.content_id }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+      <td class="muted">{{ h.dibuat }}</td>
+    </tr>
+  {% else %}<tr><td colspan="4" class="muted">Registry kosong — jalankan seed.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

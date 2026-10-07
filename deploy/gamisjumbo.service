@@ -1,0 +1,46 @@
+# gamisjumbo.service — unit systemd (bagian dari paket approval Level 2 "gamisjumbo-v1").
+#
+# JANGAN diaktifkan sebelum paket Level 2 disetujui Boss (@hermes yang menjalankan).
+# TZ dipin eksplisit (D12) supaya evaluasi slot pagi/malam tidak drift.
+
+[Unit]
+Description=Gamis Jumbo CMS (FastAPI/uvicorn, loopback 127.0.0.1:8099)
+After=network.target mariadb.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=gamisjumbo
+Group=gamisjumbo
+WorkingDirectory=/opt/gamisjumbo
+EnvironmentFile=/opt/gamisjumbo/.env
+Environment=TZ=Asia/Jakarta
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+# 1 worker: RAM tipis (lihat PRD §18). Naikkan hanya setelah uji #11 lolos 24 jam.
+ExecStart=/opt/gamisjumbo/venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 --port 8099 --workers 1 \
+    --proxy-headers --forwarded-allow-ips=127.0.0.1 \
+    --no-server-header --log-level info
+
+Restart=on-failure
+RestartSec=3
+
+# Hardening
+MemoryMax=384M
+MemoryHigh=320M
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=yes
+ReadWritePaths=/opt/gamisjumbo/var
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+StandardOutput=append:/opt/gamisjumbo/var/logs/app.log
+StandardError=append:/opt/gamisjumbo/var/logs/app.log
+
+[Install]
+WantedBy=multi-user.target

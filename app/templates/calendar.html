@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Kalender — {{ nama_bulan }} {{ tahun }}</h1>
+<div class="row between">
+  <div class="row">
+    <a class="btn btn-sm" href="/calendar?bulan={{ '%04d-%02d'|format(tahun if bulan > 1 else tahun - 1, bulan - 1 if bulan > 1 else 12) }}">← Sebelumnya</a>
+    <a class="btn btn-sm" href="/calendar">Bulan ini</a>
+    <a class="btn btn-sm" href="/calendar?bulan={{ '%04d-%02d'|format(tahun if bulan < 12 else tahun + 1, bulan + 1 if bulan < 12 else 1) }}">Berikutnya →</a>
+  </div>
+  <span class="hint">1 slot = 1 konten. `pagi` 06:00 (doa/pengingat pendek) · `malam` 20:00 (cerita/quote/question-humor).</span>
+</div>
+
+<div class="card">
+<table class="cal">
+  <thead><tr>{% for d in ['Sen','Sel','Rab','Kam','Jum','Sab','Min'] %}<th>{{ d }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for pekan in minggu %}
+    <tr>
+    {% for sel in pekan %}
+      <td class="{{ 'out' if not sel.dalam_bulan }} {{ 'today' if sel.tanggal == hari_ini }}">
+        <b>{{ sel.tanggal.day }}</b>
+        {% for slot in ['pagi','malam'] %}
+          {% set it = sel[slot] %}
+          <div class="slot {{ slot }}">
+            {% if it %}
+              <a href="/contents/{{ it.id }}">#{{ it.id }} {{ it.judul_hook[:28] }}</a>
+              <div class="hint">{{ it.status }}{% if it.format == 'reels' %} · reels{% endif %}</div>
+            {% else %}
+              <span class="hint">{{ slot }} — kosong</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Slot kosong H+1 / H+2</h3>
+    {% if slot_kosong %}
+      <ul class="warn-list">{% for s in slot_kosong %}<li>{{ s.tanggal }} — slot {{ s.slot }}</li>{% endfor %}</ul>
+    {% else %}<p class="hint">Semua slot dekat sudah terisi.</p>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Kuota pilar minggu ini</h3>
+    <table>
+      <thead><tr><th>Pilar</th><th>Terpakai</th><th>Kuota</th><th>Pipeline</th></tr></thead>
+      <tbody>{% for k in kuota %}
+        <tr><td>{{ k.pilar_nama }}</td><td>{{ k.terpakai_minggu_ini }}</td><td>{{ k.kuota_mingguan }}</td><td>{{ k.pipeline_aktif }}</td></tr>
+      {% endfor %}</tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

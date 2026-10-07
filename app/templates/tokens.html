@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Token API agent</h1>
+<p class="hint">Token mentah <b>hanya tampil sekali</b> saat dibuat. Yang disimpan cuma hash sha256. Revoke → request berikutnya 401.</p>
+
+{% if token_baru %}
+<div class="alert alert-ok">
+  <b>Token baru (salin sekarang, tidak akan tampil lagi):</b>
+  <pre class="naskah" id="token-baru">{{ token_baru }}</pre>
+  <button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('token-baru').textContent)">Salin</button>
+  <p class="hint">Pakai: <code>curl -H 'Authorization: Bearer &lt;token&gt;' http://127.0.0.1:8099/api/v1/me</code></p>
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>Buat token</h3>
+  <form method="post" action="/settings/tokens/new">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="field-inline">
+      <div style="flex:2"><label>Nama</label><input name="nama" value="agent-content" required></div>
+      <div style="flex:3">
+        <label>Scope</label>
+        <div class="row">
+          {% for s in SCOPES %}
+          <label class="row" style="margin:0"><input type="checkbox" name="scope" value="{{ s }}" style="width:auto" {{ 'checked' if s != 'asset:write' }}> <span style="font-size:13px">{{ s }}</span></label>
+          {% endfor %}
+        </div>
+      </div>
+      <div><button class="btn btn-primary" type="submit">Buat</button></div>
+    </div>
+    <p class="hint">Tanpa scope approve/reject/delete — agent memang tidak boleh.</p>
+  </form>
+</div>
+
+<div class="card">
+<table>
+  <thead><tr><th>#</th><th>Nama</th><th>Scope</th><th>Dibuat</th><th>Terakhir dipakai</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for t in items %}
+    <tr>
+      <td>{{ t.id }}</td><td>{{ t.nama }}</td>
+      <td>{{ t.scope }}</td>
+      <td class="muted">{{ t.dibuat }}</td>
+      <td class="muted">{{ t.last_used_at or 'belum pernah' }}</td>
+      <td>{% if t.revoked_at %}<span class="badge badge-err">revoked</span>{% else %}<span class="badge badge-ok">aktif</span>{% endif %}</td>
+      <td>
+        {% if not t.revoked_at %}
+        <form method="post" action="/settings/tokens/{{ t.id }}/revoke">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <button class="btn btn-sm btn-err" type="submit">Revoke</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="7" class="muted">Belum ada token.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="card">
+  <h3>Kontrol kuota (dipakai agent lewat <code>GET /api/v1/taxonomy</code>)</h3>
+  <table>
+    <thead><tr><th>Pilar</th><th>terpakai_minggu_ini</th><th>pipeline_aktif</th><th>belum_dijadwalkan</th><th>kuota_mingguan</th></tr></thead>
+    <tbody>{% for k in kuota %}
+      <tr><td>{{ k.pilar_slug }}</td><td>{{ k.terpakai_minggu_ini }}</td><td>{{ k.pipeline_aktif }}</td><td>{{ k.belum_dijadwalkan }}</td><td>{{ k.kuota_mingguan }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+</div>
+{% endblock %}

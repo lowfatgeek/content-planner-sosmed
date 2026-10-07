@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Bank Ide <span class="badge">{{ items|length }}</span></h1>
+
+<form class="card" method="get" action="/contents">
+  <div class="field-inline">
+    <div><label>Cari (judul + naskah)</label><input name="q" value="{{ filter.q }}" placeholder="mis. rezeki"></div>
+    <div><label>Status</label>
+      <select name="status"><option value="">semua</option>
+        {% for s in STATUSES %}<option value="{{ s }}" {{ 'selected' if filter.status == s }}>{{ STATUS_LABEL[s] }}</option>{% endfor %}
+      </select></div>
+    <div><label>Pilar</label>
+      <select name="pilar"><option value="">semua</option>
+        {% for p in pilar_list %}<option value="{{ p.slug }}" {{ 'selected' if filter.pilar == p.slug }}>{{ p.nama }}</option>{% endfor %}
+      </select></div>
+    <div><label>Format</label>
+      <select name="format"><option value="">semua</option>
+        {% for f in FORMATS %}<option value="{{ f }}" {{ 'selected' if filter.format == f }}>{{ f }}</option>{% endfor %}
+      </select></div>
+    <div><label>Kanal</label>
+      <select name="kanal"><option value="">semua</option>
+        {% for k in KANALS %}<option value="{{ k }}" {{ 'selected' if filter.kanal == k }}>{{ k }}</option>{% endfor %}
+      </select></div>
+    <div><label>Source</label>
+      <select name="source"><option value="">semua</option>
+        {% for s in ['agent_auto','agent_brief','boss_manual'] %}<option value="{{ s }}" {{ 'selected' if filter.source == s }}>{{ s }}</option>{% endfor %}
+      </select></div>
+    <div><button class="btn btn-primary" type="submit">Filter</button></div>
+    <div><a class="btn" href="/contents">Reset</a></div>
+  </div>
+</form>
+
+<div class="card">
+<table>
+  <thead><tr><th>#</th><th>Hook</th><th>Pilar</th><th>Format</th><th>Status</th><th>Source</th><th>Jadwal</th><th>Diubah</th><th></th></tr></thead>
+  <tbody>
+  {% for i in items %}
+    <tr>
+      <td>{{ i.id }}</td>
+      <td>{{ i.judul_hook }}{% if i.last_error %} <span class="badge badge-err">gagal</span>{% endif %}
+        {% if i.format == 'reels' %} <span class="badge badge-warn">butuh Boss</span>{% endif %}</td>
+      <td>{{ i.pilar.nama if i.pilar else '-' }}</td>
+      <td>{{ i.format }}</td>
+      <td><span class="badge">{{ STATUS_LABEL.get(i.status, i.status) }}</span></td>
+      <td class="muted">{{ i.source }}</td>
+      <td class="muted">{{ i.jadwal_tayang or '-' }} {{ i.slot_waktu or '' }}</td>
+      <td class="muted">{{ i.diubah }}</td>
+      <td><a class="btn btn-sm" href="/contents/{{ i.id }}">Buka</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9" class="muted">Belum ada konten yang cocok.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

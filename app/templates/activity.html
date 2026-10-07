@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Audit log (2 aktor) <span class="badge">{{ items|length }}</span></h1>
+<p class="hint">Sequence <code>id</code> di tabel ini juga jadi <b>kursor sinkronisasi</b> agent
+(<code>GET /api/v1/contents?cursor=</code>) — feed mengecualikan aksi <code>actor_type='agent'</code>.</p>
+<div class="card">
+<table>
+  <thead><tr><th>id</th><th>aktor</th><th>aksi</th><th>entity</th><th>from → to</th><th>meta</th><th>waktu</th></tr></thead>
+  <tbody>
+  {% for r in items %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td><span class="badge {{ 'badge-ok' if r.actor_type == 'agent' }}">{{ r.actor_type }}{% if r.actor_id %} #{{ r.actor_id }}{% endif %}</span></td>
+      <td>{{ r.action }}</td>
+      <td>{{ r.entity }}{% if r.entity_id %} #{{ r.entity_id }}{% endif %}</td>
+      <td class="muted">{{ r.from_status or '—' }} → {{ r.to_status or '—' }}</td>
+      <td class="muted">{{ parse_meta(r) }}</td>
+      <td class="muted">{{ r.created_at }}</td>
+    </tr>
+  {% else %}<tr><td colspan="7" class="muted">Belum ada aktivitas.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

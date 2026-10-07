@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Kanban — 8 kolom</h1>
+<p class="hint">Klik kartu untuk membuka detail. Perpindahan status divalidasi oleh aturan §10 (transisi tidak sah ditolak dengan pesan).</p>
+<div class="kanban">
+  {% for s in STATUSES %}
+  <div class="col">
+    <h3>{{ STATUS_LABEL[s] }} ({{ kolom.get(s, [])|length }})</h3>
+    {% for i in kolom.get(s, []) %}
+      <a class="mini" href="/contents/{{ i.id }}" style="display:block">
+        <div><b>#{{ i.id }}</b> <span class="hint">{{ i.format }}</span></div>
+        <p>{{ i.judul_hook }}</p>
+        <div class="hint">{{ i.pilar.slug if i.pilar else '-' }}{% if i.jadwal_tayang %} · {{ i.jadwal_tayang }} {{ i.slot_waktu }}{% endif %}</div>
+        {% if i.last_error %}<div><span class="badge badge-err">gagal: {{ i.last_error[:40] }}</span></div>{% endif %}
+      </a>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

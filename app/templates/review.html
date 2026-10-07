@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Butuh aksi Boss <span class="badge">{{ detail|length }}</span></h1>
+<p class="hint">Semua item berstatus <code>review</code>, urut <code>submitted_at</code>. Setujui untuk masuk <code>siap_tayang</code> (+ jadwal opsional), atau tolak dengan alasan wajib ≥10 karakter.</p>
+
+{% if not detail %}<div class="card">Tidak ada yang menunggu review. 🎉</div>{% endif %}
+
+{% for d in detail %}
+<div class="card">
+  <div class="row between">
+    <div>
+      <h3>#{{ d.item.id }} — {{ d.item.judul_hook }}</h3>
+      <div class="hint">
+        {{ d.item.pilar.nama if d.item.pilar else '-' }} · {{ d.item.format }} · {{ d.item.kanal }} ·
+        CTA {{ d.item.cta }} · fact_level {{ d.item.fact_level }} ·
+        <span class="badge">{{ d.item.source }}</span>
+        {% if d.item.request_ref %}· ref {{ d.item.request_ref }}{% endif %}
+        {% if d.item.usulan_jadwal %}· <b>usulan agent:</b> {{ d.item.usulan_jadwal }}{% endif %}
+      </div>
+    </div>
+    <a class="btn btn-sm" href="/contents/{{ d.item.id }}">Buka lengkap</a>
+  </div>
+
+  {% if d.warning %}
+    <ul class="warn-list">
+      {% for w in d.warning %}<li><b>warning</b> [{{ w.kode }}] {{ w.pesan }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if d.hook_serupa %}
+    <ul class="warn-list">
+      {% for h in d.hook_serupa %}
+        <li><b>hook mirip</b> "{{ h.hook_norm }}" ({{ h.asal }}){% if h.content_id %} — <a href="/contents/{{ h.content_id }}">#{{ h.content_id }}</a>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <pre class="naskah">{{ d.item.naskah_md }}</pre>
+  {% if d.item.caption_fb %}<p class="hint">Caption FB: {{ d.item.caption_fb }}</p>{% endif %}
+  {% if d.item.sumber_dalil %}<p class="hint">Sumber dalil: {{ d.item.sumber_dalil }}</p>{% endif %}
+  {% if d.item.fact_level == 4 %}<p class="hint"><b>Level 4 (fiqih)</b> — wajib isi <code>verifikator</code> (nama + tautan) di halaman detail sebelum bisa disetujui.</p>{% endif %}
+
+  <div class="split" style="margin-top:12px">
+    <form method="post" action="/review/{{ d.item.id }}/approve" class="card" style="margin:0">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <h3>Setujui</h3>
+      <div class="field-inline">
+        <div><label>Jadwal tayang</label><input type="date" name="jadwal_tayang"></div>
+        <div><label>Slot</label>
+          <select name="slot_waktu">
+            <option value="">(nanti saja)</option>
+            <option value="pagi">pagi (06:00)</option>
+            <option value="malam">malam (20:00)</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint">Checklist produksi ({{ d.item.format }}) — centang yang sudah beres:</p>
+      {% for c in d.checklist %}
+        <label class="row" style="margin:4px 0">
+          <input type="checkbox" name="checklist_id" value="{{ c.id }}" style="width:auto" {{ 'checked' if c.tercentang }}>
+          <span style="font-size:13px">{{ c.butir }}</span>
+        </label>
+      {% endfor %}
+      <button class="btn btn-ok" type="submit">Setujui</button>
+    </form>
+
+    <form method="post" action="/review/{{ d.item.id }}/reject" class="card" style="margin:0">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <h3>Tolak</h3>
+      <label>Alasan (wajib, ≥10 karakter)</label>
+      <textarea name="alasan" required minlength="10" placeholder="Contoh: hook terlalu panjang, dalil belum dicantumkan."></textarea>
+      <button class="btn btn-err" type="submit" style="margin-top:8px">Tolak</button>
+    </form>
+  </div>
+
+  {% if d.revisi %}
+    <details style="margin-top:10px">
+      <summary class="hint">Riwayat revisi ({{ d.revisi|length }} terakhir)</summary>
+      {% for r in d.revisi %}
+        <div class="mini"><b>v{{ r.versi }}</b> · {{ r.actor_type }} · {{ r.dibuat }}
+          <p class="hint">{{ r.catatan or '-' }}</p></div>
+      {% endfor %}
+    </details>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

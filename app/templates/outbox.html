@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Outbox notifikasi</h1>
+<p class="hint">
+  App hanya <b>menulis</b> baris di tabel ini. Yang mengirim ke Telegram = poller <code>@hermes</code>
+  (bot profil <code>default</code>, best-effort, non-blocking). Gagal kirim tercatat sebagai data,
+  bukan kegagalan aksi Boss.
+</p>
+<div class="card">
+<table>
+  <thead><tr><th>#</th><th>kind</th><th>konten</th><th>status</th><th>attempts</th><th>dibuat</th><th>terkirim</th><th>error</th><th></th></tr></thead>
+  <tbody>
+  {% for o in items %}
+    <tr>
+      <td>{{ o.id }}</td>
+      <td>{{ o.kind }}</td>
+      <td>{% if o.content_id %}<a href="/contents/{{ o.content_id }}">#{{ o.content_id }}</a>{% else %}—{% endif %}</td>
+      <td>
+        {% if o.status == 'terkirim' %}<span class="badge badge-ok">terkirim</span>
+        {% elif o.status == 'gagal' %}<span class="badge badge-err">gagal</span>
+        {% else %}<span class="badge badge-warn">menunggu</span>{% endif %}
+      </td>
+      <td>{{ o.attempts }}</td>
+      <td class="muted">{{ o.created_at }}</td>
+      <td class="muted">{{ o.sent_at or '—' }}</td>
+      <td class="muted">{{ o.last_error or '—' }}</td>
+      <td>
+        <form method="post" action="/settings/outbox/{{ o.id }}/sent">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <button class="btn btn-sm" type="submit">tandai terkirim</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="9" class="muted">Outbox kosong.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

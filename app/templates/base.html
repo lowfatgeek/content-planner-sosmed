@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ judul }} · {{ app_name }}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/htmx.min.js" defer></script>
+</head>
+<body>
+{% if user %}
+<header class="topbar">
+  <a class="brand" href="/">🧕 {{ app_name }}</a>
+  <nav>
+    <a href="/" class="{{ 'on' if path == '/' }}">Dashboard</a>
+    <a href="/review" class="{{ 'on' if path.startswith('/review') }}">Butuh aksi Boss</a>
+    <a href="/contents" class="{{ 'on' if path.startswith('/contents') and path != '/contents/new' }}">Bank Ide</a>
+    <a href="/kanban" class="{{ 'on' if path.startswith('/kanban') }}">Kanban</a>
+    <a href="/calendar" class="{{ 'on' if path.startswith('/calendar') }}">Kalender</a>
+    <a href="/metrics" class="{{ 'on' if path.startswith('/metrics') }}">Metrik</a>
+    <span class="spacer"></span>
+    <a href="/contents/new" class="btn btn-primary btn-sm">+ Konten</a>
+    <a href="/templates">Template</a>
+    <a href="/settings/tokens">Token</a>
+    <a href="/settings/hooks">Hook</a>
+    <a href="/settings/outbox">Outbox</a>
+    <a href="/settings/activity">Audit</a>
+    <a href="/logout" class="muted">Keluar ({{ user.username }})</a>
+  </nav>
+</header>
+{% endif %}
+
+<main class="wrap">
+  {% if request.query_params.get('pesan') %}
+    <div class="alert alert-{{ request.query_params.get('level', 'ok') }}">{{ request.query_params.get('pesan') }}</div>
+  {% endif %}
+  {% block konten %}{% endblock %}
+</main>
+
+<footer class="foot">
+  <span>{{ app_name }} — internal, loopback API <code>127.0.0.1:8099</code> · TZ Asia/Jakarta</span>
+</footer>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Template caption</h1>
+<p class="hint">Template tersimpan per pilar, total ≤ 200 kata terbaca (F5).</p>
+
+<div class="card">
+  <h3>Template baru</h3>
+  <form method="post" action="/templates/new">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="field-inline">
+      <div style="flex:2"><label>Nama</label><input name="nama" required></div>
+      <div><label>Pilar</label>
+        <select name="pilar"><option value="">(semua)</option>
+          {% for p in pilar_list %}<option value="{{ p.slug }}">{{ p.nama }}</option>{% endfor %}
+        </select></div>
+    </div>
+    <label>Isi</label><textarea name="body" required></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn btn-primary" type="submit">Simpan</button></div>
+  </form>
+</div>
+
+<div class="card">
+<table>
+  <thead><tr><th>Nama</th><th>Pilar</th><th>Status</th><th>Isi</th><th></th></tr></thead>
+  <tbody>
+  {% for t in items %}
+    <tr>
+      <td>{{ t.nama }}</td>
+      <td>{{ t.pilar.nama if t.pilar else '-' }}</td>
+      <td>{% if t.is_active %}<span class="badge badge-ok">aktif</span>{% else %}<span class="badge">nonaktif</span>{% endif %}</td>
+      <td><pre class="naskah" style="max-height:120px;overflow:auto">{{ t.body }}</pre></td>
+      <td>
+        <form method="post" action="/templates/{{ t.id }}/toggle">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <button class="btn btn-sm" type="submit">{{ 'Nonaktifkan' if t.is_active else 'Aktifkan' }}</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="5" class="muted">Belum ada template.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

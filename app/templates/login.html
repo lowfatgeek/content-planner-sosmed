@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block konten %}
+<div class="card" style="max-width:420px;margin:60px auto">
+  <h1>Masuk</h1>
+  {% if error %}<div class="alert alert-err">{{ error }}</div>{% endif %}
+  <form method="post" action="/login">
+    <label for="username">Username</label>
+    <input id="username" name="username" autocomplete="username" required autofocus>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <div class="row" style="margin-top:16px">
+      <button class="btn btn-primary" type="submit">Masuk</button>
+      <span class="hint">Satu akun Boss. Akun agent memakai API token.</span>
+    </div>
+  </form>
+</div>
+{% endblock %}

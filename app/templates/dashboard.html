@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Dashboard</h1>
+
+<div class="grid grid-4">
+  <div class="stat"><b>{{ tayang }} / {{ total.target_mingguan }}</b><span>Konsistensi mingguan (tayang minggu ini / target 14)</span></div>
+  <div class="stat"><b>{{ slot_terisi }} / {{ total.target_mingguan }}</b><span>Pemenuhan slot (slot terisi minggu ini)</span></div>
+  <div class="stat"><b>{{ review_q|length }}</b><span>Butuh aksi Boss (review)</span></div>
+  <div class="stat"><b>{{ kpi.median_review_jam }} jam</b><span>Median waktu review ({{ kpi.jumlah_lewat_review }} item lewat review)</span></div>
+  <div class="stat"><b>{{ kpi.er }}</b><span>Engagement rate (likes+komen+share)/reach</span></div>
+  <div class="stat"><b>{{ kpi.share_rate }}</b><span>Share rate (share/reach)</span></div>
+  <div class="stat"><b>{{ kpi.tepat_jadwal }} / {{ kpi.tepat_jadwal + kpi.telat_jadwal }}</b><span>Ketepatan jadwal (posted ≤ slot+60m)</span></div>
+  <div class="stat"><b>{{ total.pipeline_aktif }}</b><span>Pipeline aktif (review→tayang)</span></div>
+</div>
+
+<h2>Badge peringatan</h2>
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Jalur agent &amp; notifikasi</h3>
+    <ul class="warn-list">
+      <li>Token agent terakhir dipakai: <b>{{ token_terakhir or 'belum pernah' }}</b></li>
+      <li>Item <code>terjadwal</code> lewat jadwal &gt;60 menit: <b>{{ telat|length }}</b> {{ '(merah)' if telat else '' }}</li>
+      <li>Item gagal posting (<code>last_error</code>): <b>{{ gagal|length }}</b></li>
+      <li>Outbox menunggu kirim: <b>{{ outbox_menunggu }}</b> · gagal: <b>{{ outbox_gagal }}</b></li>
+      <li>Butuh tangan Boss (reels/kanal fb_reels): <b>{{ manual|length }}</b></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Editorial</h3>
+    <ul class="warn-list">
+      <li>Slot kosong H+1/H+2: <b>{{ slot_kosong|length }}</b>
+        {% if slot_kosong %}— {{ slot_kosong|map(attribute='tanggal')|list|join(', ') }}{% endif %}</li>
+      <li>Metrik bolong (tayang tanpa snapshot): <b>{{ metrik_bolong|length }}</b></li>
+    </ul>
+  </div>
+</div>
+
+{% if gagal or manual or telat %}
+<h2 style="color:var(--err)">Butuh tindakan</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>#</th><th>Konten</th><th>Status</th><th>Jadwal</th><th>Masalah</th><th></th></tr></thead>
+    <tbody>
+    {% for i in gagal + manual + telat %}
+      <tr>
+        <td>{{ i.id }}</td><td>{{ i.judul_hook }}</td>
+        <td><span class="badge">{{ STATUS_LABEL.get(i.status, i.status) }}</span></td>
+        <td>{{ i.jadwal_tayang }} {{ i.slot_waktu }}</td>
+        <td class="muted">{{ i.last_error or ('reels → posting manual Boss' if i.format == 'reels' else 'lewat jadwal >60 menit') }}</td>
+        <td><a class="btn btn-sm" href="/contents/{{ i.id }}">Buka</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<h2>Kuota per pilar (tiga angka — PRD §7b)</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Pilar</th><th>Kuota/minggu</th><th>Terpakai minggu ini</th><th>Pipeline aktif</th><th>Belum dijadwalkan</th><th>Sisa</th></tr></thead>
+    <tbody>
+    {% for k in kuota %}
+      <tr>
+        <td><span class="badge" style="border-left:4px solid {{ k.pilar_slug and '' }}">{{ k.pilar_nama }}</span><div class="hint">{{ k.pilar_slug }}</div></td>
+        <td>{{ k.kuota_mingguan }} ({{ k.kuota_persen }}%)</td>
+        <td>{{ k.terpakai_minggu_ini }}</td>
+        <td>{{ k.pipeline_aktif }}</td>
+        <td>{{ k.belum_dijadwalkan }}</td>
+        <td>{% if k.terpakai_minggu_ini == 0 %}<span class="badge badge-warn">pilar masih 0</span>{% else %}{{ k.sisa_kuota_minggu_ini }}{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="hint">Total pipeline aktif: {{ total.pipeline_aktif }} · terpakai minggu ini: {{ total.terpakai_minggu_ini }} · belum dijadwalkan: {{ total.belum_dijadwalkan }}</p>
+</div>
+
+{% if review_q %}
+<h2>Menunggu review ({{ review_q|length }})</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>#</th><th>Hook</th><th>Pilar</th><th>Source</th><th>Masuk review</th><th></th></tr></thead>
+    <tbody>
+    {% for i in review_q %}
+      <tr>
+        <td>{{ i.id }}</td><td>{{ i.judul_hook }}</td>
+        <td>{{ i.pilar.nama if i.pilar else '-' }}</td>
+        <td><span class="badge">{{ i.source }}</span></td>
+        <td class="muted">{{ i.submitted_at }}</td>
+        <td><a class="btn btn-sm btn-primary" href="/review">Review</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

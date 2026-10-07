@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>Metrik manual</h1>
+<p class="hint">Satu snapshot per konten per hari (unique). Share rate &amp; ER dihitung otomatis di dashboard.</p>
+
+<div class="card">
+  <h3>Catat snapshot</h3>
+  <form method="post" action="/metrics/new">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="field-inline">
+      <div style="flex:2"><label>Konten (status tayang)</label>
+        <select name="content_id" required>
+          {% for i in items %}<option value="{{ i.id }}">#{{ i.id }} — {{ i.judul_hook[:60] }}</option>{% endfor %}
+        </select></div>
+      <div><label>Tanggal capture</label><input type="date" name="capture_date" required></div>
+      <div><label>Reach</label><input type="number" name="reach" min="0" value="0"></div>
+      <div><label>Like</label><input type="number" name="likes" min="0" value="0"></div>
+      <div><label>Komen</label><input type="number" name="komen" min="0" value="0"></div>
+      <div><label>Share</label><input type="number" name="share" min="0" value="0"></div>
+      <div><button class="btn btn-primary" type="submit">Simpan</button></div>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Snapshot terakhir</h3>
+  <table>
+    <thead><tr><th>#</th><th>Konten</th><th>Tanggal</th><th>Reach</th><th>Like</th><th>Komen</th><th>Share</th><th>Share rate</th><th>ER</th></tr></thead>
+    <tbody>
+    {% for s in snapshots %}
+      <tr>
+        <td>{{ s.content_id }}</td>
+        <td>{{ s.content.judul_hook if s.content else '-' }}</td>
+        <td>{{ s.capture_date }}</td>
+        <td>{{ s.reach }}</td><td>{{ s.likes }}</td><td>{{ s.komen }}</td><td>{{ s.share }}</td>
+        <td>{{ '%.4f'|format(s.share / s.reach) if s.reach else '—' }}</td>
+        <td>{{ '%.4f'|format((s.likes + s.komen + s.share) / s.reach) if s.reach else '—' }}</td>
+      </tr>
+    {% else %}<tr><td colspan="9" class="muted">Belum ada snapshot.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

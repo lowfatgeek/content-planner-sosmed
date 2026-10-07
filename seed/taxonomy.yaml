@@ -1,0 +1,154 @@
+# taxonomy.yaml — dimiliki app ini (PRD D15).
+#
+# Sumber awal: /root/content-workspace/gamis-jumbo/content-bible.md
+#   §6–§10  → 5 pilar + porsi
+#   §18     → kanal & format
+#   §19     → kuota mingguan (2 posting/hari = 14/minggu)
+#   §21     → 30 ide hook awal (lihat hooks.yaml)
+#   §22     → CTA
+#   §24     → level fact-check
+#
+# File ini DI-GENERATE SEKALI dari bible, lalu menjadi milik app. Perubahan
+# nilai di sini = perubahan perilaku app → wajib lewat migrasi/PR eksplisit,
+# bukan diedit diam-diam saat runtime (D15). App tidak pernah membaca bible
+# pada waktu runtime dari workspace profile lain.
+
+versi: 1
+generated_from: "content-bible.md (867 baris) — PRD v1.4 §2"
+tz: "Asia/Jakarta"
+
+# 2 posting/hari, 1 konten per slot (aturan baku, PRD §8c)
+slot_hari: 2
+target_mingguan: 14
+
+jam_slot:
+  pagi: "06:00"
+  malam: "20:00"
+
+# Peran slot (D21) — saran editorial, bukan validasi keras.
+peran_slot:
+  pagi: "doa / pengingat pendek (nyambung rutinitas subuh, gampang di-share)"
+  malam: "cerita / quote / question / humor (jam scroll utama)"
+
+pilar:
+  - slug: pengingat
+    nama: "Pengingat Sehari-hari"
+    warna: "#C08A5A"
+    urutan: 1
+    kuota_persen: 30
+    kuota_mingguan: 4
+  - slug: keluarga_muslimah
+    nama: "Muslimah & Keluarga"
+    warna: "#C98B9E"
+    urutan: 2
+    kuota_persen: 25
+    kuota_mingguan: 3
+  - slug: doa_dzikir
+    nama: "Doa, Dzikir & Amalan"
+    warna: "#8FA98C"
+    urutan: 3
+    kuota_persen: 20
+    kuota_mingguan: 3
+  - slug: cerita_renungan
+    nama: "Cerita & Renungan"
+    warna: "#A88B6F"
+    urutan: 4
+    kuota_persen: 15
+    kuota_mingguan: 2
+  - slug: interaksi_humor
+    nama: "Interaksi & Hiburan Islami"
+    warna: "#B8A15E"
+    urutan: 5
+    kuota_persen: 10
+    kuota_mingguan: 2
+
+format:
+  - quote
+  - mini_story
+  - doa
+  - meme_relatable
+  - question
+  - carousel
+  - reels
+  - text
+
+kanal:
+  - fb_feed
+  - fb_reels
+  - fb_story
+
+cta:
+  - komentar
+  - share
+  - save
+  - follow
+  - tanpa_cta
+
+# Aturan format (dipakai checklist produksi §11 dan warning §11)
+format_aturan:
+  quote:
+    butir:
+      - "hook <= 15 kata"
+      - "font template dari fonts/"
+      - "watermark facebook.com/gamisjumboid kanan-bawah"
+      - "kontras aman di HP"
+      - "sumber bila mengutip ulama"
+  mini_story:
+    butir:
+      - "maks 3 slide"
+      - "slide 1 masalah, slide 2 twist, slide 3 hikmah"
+      - "1 CTA komentar"
+  doa:
+    butir:
+      - "Arab + latin + arti lengkap (tidak memotong lafaz)"
+      - "sumber dalil wajib"
+      - "render memakai render_doa.py"
+  meme_relatable:
+    butir:
+      - "1 masalah keseharian ibu-ibu"
+      - "tidak menyinggung fisik/mazhab/kelompok"
+      - "punchline + pengingat lembut"
+  question:
+    butir:
+      - "1 pertanyaan pancingan"
+      - "opsi jawaban 2-3"
+      - "CTA komentar wajib"
+  carousel:
+    butir:
+      - "3-5 slide"
+      - "slide 1 hook, slide terakhir CTA"
+      - "setiap slide 1 ide (tidak padat teks)"
+  reels:
+    butir:
+      - "link referensi saja (tanpa upload video)"
+      - "15-45 detik, ideal 30-45"
+      - "hook 3 detik pertama tertulis"
+  text:
+    butir:
+      - "<= 80 kata"
+      - "paragraf pendek"
+      - "1 CTA"
+
+fact_level:
+  1: "Umum / lifestyle — tidak butuh referensi agama"
+  2: "Terjemahan / perlu cek — cek teks, terjemahan, nomor ayat"
+  3: "Dalil populer — WAJIB sumber_dalil"
+  4: "Hukum Islam / fiqih — DIPARKIR DI MVP (D19): agent ditolak 422, item Boss butuh verifikator"
+
+# Batas yang juga dipakai app (magic numbers di seed, bukan di kode)
+batas:
+  upload_max_mb: 20
+  idempotency_ttl_jam: 24
+  retensi_dump_hari: 14
+  review_reason_min_karakter: 10
+  hook_kata_pembanding: 3
+  keterlambatan_slot_menit: 60
+
+warning:
+  # 3 pemicu, NOL blokir (D22). Semua muncul sebagai warning[] di API + badge UI.
+  - kode: format_sama_dua_slot
+    pesan: "Format yang sama dipakai di dua slot pada tanggal yang sama"
+  - kode: engagement_di_slot_pagi
+    pesan: "question/meme_relatable di slot pagi (engagement jam 06:00 rendah)"
+  - kode: usulan_jadwal_tabrakan
+    pesan: "Dua item mengusulkan usulan_jadwal yang bertabrakan"

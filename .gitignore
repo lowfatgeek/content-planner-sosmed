@@ -1,0 +1,21 @@
+# Secrets & data runtime
+.env
+.env.*
+!.env.example
+
+# Virtualenv & cache
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Data app (DB dev, uploads, log, dump)
+var/
+!var/.gitkeep
+
+# Scratch Alembic
+*.db
+*.sqlite
+*.sqlite3

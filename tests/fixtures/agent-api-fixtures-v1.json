@@ -1,0 +1,336 @@
+{
+ "_meta": {
+  "nama": "Fixture konten Gamis Jumbo untuk smoke test /api/v1 (PRD v1.3)",
+  "dibuat_oleh": "@content",
+  "basis": "PRD v1.3 §7c payload flat JSON; konten mengikuti /root/content-workspace/gamis-jumbo/content-bible.md",
+  "cara_pakai": "Isi body POST apa adanya; JANGAN ubah Idempotency-Key pada kasus replay. `expected_http` = hasil yang harus muncul (rujuk nomor test §16).",
+  "catatan_kejujuran": "Semua klaim agama di fixture ini pakai rujukan yang saya yakin (QS. Al-Baqarah: 201; HR. Bukhari no. 1 = hadits pertama Shahih Bukhari). Fixture TIDAK boleh diposting apa adanya — copy final tetap lewat review Boss."
+ },
+ "positif": [
+  {
+   "id": "FX-01",
+   "test": [
+    5,
+    9
+   ],
+   "expected_http": 201,
+   "idempotency_key": "fx01-7c1e-4a2b-9f00-000000000001",
+   "body": {
+    "judul_hook": "Kalau hari ini berat, baca ini dulu",
+    "pilar": "pengingat",
+    "format": "quote",
+    "kanal": "fb_feed",
+    "naskah_md": "Kadang yang bikin capek bukan kerjaannya, tapi pikiran bahwa semua ini harus selesai hari ini.\n\nNggak semua harus beres sekarang. Ada yang cukup dikerjakan, sisanya diserahkan.\n\nKalau hari ini cuma bisa jalan pelan, ya jalan pelan. Yang penting nggak berhenti.",
+    "caption_fb": "Kalau hari ini berat, ini pengingat singkat buat kamu. Semoga yang lagi capek, dikuatkan.",
+    "cta": "share",
+    "hashtags": "#GamisJumbo #Pengingat",
+    "fact_level": 1,
+    "sumber_dalil": null,
+    "usulan_jadwal": "2026-10-09T06:00:00+07:00",
+    "request_ref": "telegram:msg/18422",
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "FX-02",
+   "test": [
+    5,
+    9
+   ],
+   "expected_http": 201,
+   "idempotency_key": "fx02-7c1e-4a2b-9f00-000000000002",
+   "body": {
+    "judul_hook": "Doa pagi yang sering kita lewatkan",
+    "pilar": "doa_dzikir",
+    "format": "doa",
+    "kanal": "fb_feed",
+    "naskah_md": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ\n\nRabbanaa aatinaa fid-dun-yaa hasanah, wa fil-aakhirati hasanah, wa qinaa 'adzaaban-naar.\n\n\"Ya Allah, berikanlah kami kebaikan di dunia dan kebaikan di akhirat, serta lindungilah kami dari azab neraka.\"",
+    "caption_fb": "Doa ini pendek, tapi mencakup semuanya. Baca pelan-pelan sebelum mulai hari.",
+    "cta": "save",
+    "hashtags": "#GamisJumbo #DoaPagi",
+    "fact_level": 2,
+    "sumber_dalil": "QS. Al-Baqarah: 201",
+    "usulan_jadwal": "2026-10-10T06:00:00+07:00",
+    "request_ref": "telegram:msg/18431",
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "FX-03",
+   "test": [
+    5
+   ],
+   "expected_http": 201,
+   "idempotency_key": "fx03-7c1e-4a2b-9f00-000000000003",
+   "body": {
+    "judul_hook": "Amal besar bisa jadi kecil karena niat",
+    "pilar": "pengingat",
+    "format": "quote",
+    "kanal": "fb_feed",
+    "naskah_md": "Semua amal tergantung niatnya.\n\nMasak buat anak yang nggak dianggap, bisa jadi ibadah. Ngeluh sambil tetap dikerjakan, bisa jadi sabar. Niatnya yang beda.\n\nHari ini nggak perlu nambah amalan baru. Cukup perbaiki niatnya.",
+    "caption_fb": "Pekerjaan yang sama, niatnya yang bikin beda.",
+    "cta": "share",
+    "hashtags": "#GamisJumbo #Niat",
+    "fact_level": 3,
+    "sumber_dalil": "HR. Bukhari no. 1 (shahih)",
+    "usulan_jadwal": "2026-10-10T20:00:00+07:00",
+    "request_ref": "telegram:msg/18444",
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "FX-04",
+   "test": [
+    20
+   ],
+   "expected_http": 201,
+   "expected_warning": true,
+   "idempotency_key": "fx04-7c1e-4a2b-9f00-000000000004",
+   "body": {
+    "judul_hook": "Pekerjaan rumah mana yang paling bikin capek?",
+    "pilar": "interaksi_humor",
+    "format": "question",
+    "kanal": "fb_feed",
+    "naskah_md": "Pilih satu, jujur:\n\n1. Cucian yang nggak pernah habis\n2. Dapur yang baru dirapikan, 10 menit kemudian berantakan lagi\n3. Nanya \"makan apa?\" terus jawabannya \"terserah\"\n\nTulis angkanya di komentar.",
+    "caption_fb": "Angka doang, tapi jujur ya.",
+    "cta": "komentar",
+    "hashtags": "#GamisJumbo #Interaksi",
+    "fact_level": 1,
+    "sumber_dalil": null,
+    "usulan_jadwal": "2026-10-11T20:00:00+07:00",
+    "request_ref": "telegram:msg/18450",
+    "source": "agent_auto"
+   }
+  },
+  {
+   "id": "FX-05",
+   "test": [
+    17
+   ],
+   "expected_http": 201,
+   "expected_queue_due": "TIDAK muncul (D20)",
+   "idempotency_key": "fx05-7c1e-4a2b-9f00-000000000005",
+   "body": {
+    "judul_hook": "Reel pendek: 3 detik pertama soal antrean",
+    "pilar": "cerita_renungan",
+    "format": "reels",
+    "kanal": "fb_reels",
+    "naskah_md": "HOOK (0-3 dtk, teks besar di layar): \"Kenapa kita selalu sabar sama orang luar, tapi nggak sama yang di rumah?\"\n\nISI (3-20 dtk): cerita singkat - 1 hari yang bikin sadar.\n\nPENUTUP (20-35 dtk): pengingat lembut + ajakan share.\n\nLink referensi: (diisi Boss saat posting manual)",
+    "caption_fb": "Reel 30-35 detik. Upload manual ya Boss, agent cuma siapkan hook + caption.",
+    "cta": "share",
+    "hashtags": "#GamisJumbo #Reels",
+    "fact_level": 1,
+    "sumber_dalil": null,
+    "visual_note": "link referensi saja - tidak ada file video",
+    "usulan_jadwal": "2026-10-11T20:30:00+07:00",
+    "request_ref": "telegram:msg/18455",
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "FX-06",
+   "test": [
+    5
+   ],
+   "expected_http": 201,
+   "idempotency_key": "fx06-7c1e-4a2b-9f00-000000000006",
+   "body": {
+    "judul_hook": "Ibu yang selalu bilang \"makannya nanti aja\"",
+    "pilar": "keluarga_muslimah",
+    "format": "mini_story",
+    "kanal": "fb_feed",
+    "naskah_md": "Slide 1: Dia masak buat semua orang, tapi makannya paling terakhir.\n\nSlide 2: Suatu hari anaknya nanya, \"Ibu kok nggak makan bareng?\" Dia cuma senyum.\n\nSlide 3: Anak itu baru paham 20 tahun kemudian, saat dia sendiri jadi ibu.",
+    "caption_fb": "Bu, makannya jangan terakhir terus ya.",
+    "cta": "share",
+    "hashtags": "#GamisJumbo #Keluarga",
+    "fact_level": 1,
+    "sumber_dalil": null,
+    "usulan_jadwal": "2026-10-12T20:00:00+07:00",
+    "request_ref": "telegram:msg/18461",
+    "source": "agent_auto"
+   }
+  }
+ ],
+ "negatif": [
+  {
+   "id": "NX-01",
+   "test": [
+    6
+   ],
+   "expected_http": 422,
+   "sebab": "fact_level 3 tanpa sumber_dalil (gate server-side, bukan hanya UI)",
+   "body": {
+    "judul_hook": "Amal besar bisa jadi kecil karena niat",
+    "pilar": "pengingat",
+    "format": "quote",
+    "naskah_md": "(sama seperti FX-03)",
+    "caption_fb": "(sama seperti FX-03)",
+    "cta": "share",
+    "hashtags": "#GamisJumbo",
+    "fact_level": 3,
+    "sumber_dalil": null,
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "NX-02",
+   "test": [
+    16
+   ],
+   "expected_http": 422,
+   "sebab": "D19 - agent dilarang membuat item fact_level=4",
+   "body": {
+    "judul_hook": "Hukum riba dalam jual beli online",
+    "pilar": "pengingat",
+    "format": "quote",
+    "naskah_md": "(contoh)",
+    "caption_fb": "(contoh)",
+    "cta": "share",
+    "hashtags": "#GamisJumbo",
+    "fact_level": 4,
+    "sumber_dalil": "(contoh)",
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "NX-03",
+   "test": [
+    6
+   ],
+   "expected_http": 422,
+   "sebab": "pilar di luar taxonomy (slug asing harus ditolak, bukan dibuat otomatis)",
+   "body": {
+    "judul_hook": "Contoh pilar asing",
+    "pilar": "hukum_fiqih",
+    "format": "quote",
+    "naskah_md": "(contoh)",
+    "caption_fb": "(contoh)",
+    "cta": "share",
+    "hashtags": "#GamisJumbo",
+    "fact_level": 1,
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "NX-04",
+   "test": [
+    6
+   ],
+   "expected_http": 422,
+   "sebab": "format di luar taxonomy",
+   "body": {
+    "judul_hook": "Contoh format asing",
+    "pilar": "pengingat",
+    "format": "podcast",
+    "naskah_md": "(contoh)",
+    "caption_fb": "(contoh)",
+    "cta": "share",
+    "hashtags": "#GamisJumbo",
+    "fact_level": 1,
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "NX-05",
+   "test": [
+    7
+   ],
+   "expected_http": "1x201 lalu 200 identik",
+   "sebab": "replay Idempotency-Key + body SAMA (FX-01)",
+   "idempotency_key": "fx01-7c1e-4a2b-9f00-000000000001",
+   "body": "(body FX-01 apa adanya)"
+  },
+  {
+   "id": "NX-06",
+   "test": [
+    7
+   ],
+   "expected_http": 409,
+   "sebab": "Idempotency-Key sama, body BEDA",
+   "idempotency_key": "fx01-7c1e-4a2b-9f00-000000000001",
+   "body": {
+    "judul_hook": "Body yang berbeda",
+    "pilar": "pengingat",
+    "format": "quote",
+    "naskah_md": "(berbeda)",
+    "caption_fb": "(berbeda)",
+    "cta": "share",
+    "hashtags": "#GamisJumbo",
+    "fact_level": 1,
+    "source": "agent_brief"
+   }
+  },
+  {
+   "id": "NX-07",
+   "test": [
+    6
+   ],
+   "expected_http": 403,
+   "sebab": "agent PATCH item milik Boss (owner_token_id berbeda)",
+   "uri": "PATCH /api/v1/contents/{id_item_boss}",
+   "body": {
+    "judul_hook": "Coba ubah item Boss",
+    "naskah_md": "(contoh)"
+   }
+  }
+ ],
+ "revisi_dan_kursor": [
+  {
+   "id": "KV-01",
+   "test": [
+    18
+   ],
+   "alur": [
+    "POST FX-01 -> review",
+    "Boss tolak dengan reject_reason",
+    "GET /contents?cursor=<seq setelah approve/reject>"
+   ],
+   "harus_muncul": [
+    "reject_reason",
+    "versi_terakhir",
+    "status=ditolak"
+   ],
+   "harus_tidak_muncul": [
+    "aksi agent sendiri (tidak loop ke diri sendiri)"
+   ]
+  },
+  {
+   "id": "KV-02",
+   "test": [
+    18
+   ],
+   "alur": [
+    "PATCH /contents/{id FX-01} dengan revisi baru + Idempotency-Key baru"
+   ],
+   "harus": [
+    "status kembali review",
+    "submitted_at terisi ulang",
+    "content_revision +1",
+    "versi_terakhir naik"
+   ]
+  }
+ ],
+ "kuota_dan_kontrol": [
+  {
+   "id": "KQ-01",
+   "test": [
+    19
+   ],
+   "cek": "GET /taxonomy -> kuota_terpakai per pilar. Fixture di atas: pengingat 3, doa_dzikir 1, interaksi_humor 1, cerita_renungan 1, keluarga_muslimah 1 (total 7 item, target 14/minggu)"
+  },
+  {
+   "id": "KQ-02",
+   "test": [
+    16
+   ],
+   "cek": "Item Boss fact_level=4 tanpa verifikator -> T4 ditolak; setelah verifikator='ustadz X - youtu.be/xxx' terisi -> lolos ke siap_tayang"
+  },
+  {
+   "id": "KQ-03",
+   "test": [
+    15
+   ],
+   "cek": "curl https://fp.kelaswfa.my.id/api/v1/health -> 404 ; curl -H 'Authorization: Bearer <token>' http://127.0.0.1:8099/api/v1/health -> 200"
+  }
+ ]
+}

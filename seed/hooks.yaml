@@ -1,0 +1,71 @@
+# hooks.yaml — 20–30 hook awal dari content bible §21 (baris 670–701).
+#
+# PRD D24: `hook_registry` diisi sejak Fase 1 dari file ini. Baris `asal='seed'`
+# TIDAK PERNAH dilepas saat konten diarsipkan (berbeda dari baris `asal='konten'`),
+# jadi bank hook ini tetap hidup sebagai penjaga anti-duplikasi (F11).
+#
+# `hook_norm` = 3 kata pertama judul, lowercase, tanda baca dibuang.
+# Nilai di bawah ditulis apa adanya; normalisasi dilakukan app saat seeding.
+
+sumber: "content-bible.md §21 (30 ide konten awal)"
+hooks:
+  - judul: "Kadang bukan rezeki kita sedikit, kita cuma lupa menghitungnya."
+    pilar: pengingat
+  - judul: "Doa sederhana untuk kedua orang tua."
+    pilar: doa_dzikir
+  - judul: "Gamis boleh jumbo, overthinking jangan."
+    pilar: interaksi_humor
+  - judul: "Kalau ibu masih ada, jangan tunggu rindu untuk menelepon."
+    pilar: keluarga_muslimah
+  - judul: "3 hal kecil yang sebenarnya termasuk rezeki."
+    pilar: pengingat
+  - judul: "Doa ketika hati merasa gelisah."
+    pilar: doa_dzikir
+  - judul: "Suami dan istri sama-sama manusia yang bisa lelah."
+    pilar: keluarga_muslimah
+  - judul: "Apa doa terbesar yang sedang kamu tunggu?"
+    pilar: interaksi_humor
+  - judul: "Kisah tentang anak yang baru memahami pengorbanan ibunya setelah dewasa."
+    pilar: cerita_renungan
+  - judul: "Rezeki bukan cuma uang."
+    pilar: pengingat
+  - judul: "Mengapa kita perlu menjaga ucapan ketika sedang marah."
+    pilar: pengingat
+  - judul: "Amalan sederhana hari Jumat."
+    pilar: doa_dzikir
+  - judul: "Pernah nggak merasa Allah menjawab doa dengan cara yang sama sekali berbeda?"
+    pilar: pengingat
+  - judul: "Kisah singkat tentang sedekah."
+    pilar: cerita_renungan
+  - judul: "Jangan bandingkan rumah tanggamu dengan highlight hidup orang lain."
+    pilar: keluarga_muslimah
+  - judul: "Doa untuk keluarga."
+    pilar: doa_dzikir
+  - judul: "5 nikmat yang sering dianggap biasa."
+    pilar: pengingat
+  - judul: "Siapa orang pertama yang ingin kamu ajak umrah?"
+    pilar: interaksi_humor
+  - judul: "Hal sederhana yang bisa membuat pasangan merasa dihargai."
+    pilar: keluarga_muslimah
+  - judul: "Renungan sebelum tidur."
+    pilar: cerita_renungan
+  - judul: "Dzikir ketika merasa takut atau cemas."
+    pilar: doa_dzikir
+  - judul: "Humor: niat tidur setelah Isya vs scrolling sampai tengah malam."
+    pilar: interaksi_humor
+  - judul: "Pengingat tentang menjaga lisan."
+    pilar: pengingat
+  - judul: "Cerita tentang ayah yang jarang berkata sayang tetapi selalu hadir."
+    pilar: cerita_renungan
+  - judul: "Jangan menunggu kaya untuk bersedekah."
+    pilar: pengingat
+  - judul: "Kalau hidup sedang berat, jangan merasa doa kita tidak didengar."
+    pilar: pengingat
+  - judul: "Doa memasuki pagi."
+    pilar: doa_dzikir
+  - judul: "Apa nasihat ibu yang baru kamu pahami setelah dewasa?"
+    pilar: interaksi_humor
+  - judul: "Pengingat bahwa setiap keluarga punya masalah yang tidak kita lihat."
+    pilar: keluarga_muslimah
+  - judul: "Karena yang jumbo jangan cuma gamisnya, pahala juga."
+    pilar: pengingat

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block konten %}
+<h1>#{{ item.id }} — {{ item.judul_hook }}</h1>
+<div class="row" style="margin-bottom:10px">
+  <span class="badge">{{ STATUS_LABEL.get(item.status, item.status) }}</span>
+  <span class="badge">{{ item.source }}</span>
+  <span class="badge">{{ item.pilar.nama if item.pilar else '-' }}</span>
+  <span class="badge">{{ item.format }}</span>
+  <span class="badge">{{ item.kanal }}</span>
+  <span class="badge">fact_level {{ item.fact_level }}</span>
+  {% if item.jadwal_tayang %}<span class="badge badge-ok">{{ item.jadwal_tayang }} {{ item.slot_waktu }}</span>{% endif %}
+  {% if item.tayang_at %}<span class="badge badge-ok">tayang {{ item.tayang_at }}</span>{% endif %}
+  {% if item.last_error %}<span class="badge badge-err">gagal: {{ item.last_error }}</span>{% endif %}
+</div>
+
+{% if warning %}
+<ul class="warn-list">{% for w in warning %}<li><b>warning</b> [{{ w.kode }}] {{ w.pesan }}</li>{% endfor %}</ul>
+{% endif %}
+{% if hook_serupa %}
+<ul class="warn-list">{% for h in hook_serupa %}
+  <li><b>hook mirip</b> "{{ h.hook_norm }}" ({{ h.asal }}){% if h.content_id %} — <a href="/contents/{{ h.content_id }}">#{{ h.content_id }}</a>{% endif %}</li>
+{% endfor %}</ul>
+{% endif %}
+{% if item.reject_reason %}<div class="alert alert-err"><b>Alasan ditolak:</b> {{ item.reject_reason }}</div>{% endif %}
+{% if item.link_posting %}<div class="alert alert-ok"><b>Link posting:</b> <a href="{{ item.link_posting }}" rel="noopener">{{ item.link_posting }}</a>{% if item.platform_post_id %} · id {{ item.platform_post_id }}{% endif %}</div>{% endif %}
+
+<div class="split">
+  <div class="card">
+    <h3>Naskah (versi terbaru)</h3>
+    <pre class="naskah">{{ item.naskah_md }}</pre>
+    {% if item.caption_fb %}<p class="hint" style="margin-top:8px"><b>Caption FB:</b> {{ item.caption_fb }}</p>{% endif %}
+    <p class="hint">
+      {% if item.sumber_dalil %}<b>Sumber dalil:</b> {{ item.sumber_dalil }} ·{% endif %}
+      {% if item.verifikator %}<b>Verifikator:</b> {{ item.verifikator }} ·{% endif %}
+      CTA {{ item.cta }}{% if item.hashtags %} · {{ item.hashtags }}{% endif %}
+    </p>
+    <p class="hint">Dibuat {{ item.dibuat }} · Diubah {{ item.diubah }}
+      {% if item.submitted_at %} · Submit {{ item.submitted_at }}{% endif %}
+      {% if item.approved_at %} · Approved {{ item.approved_at }}{% endif %}
+      {% if item.posted_at %} · Posted {{ item.posted_at }}{% endif %}</p>
+  </div>
+
+  <div class="card">
+    <h3>Checklist produksi ({{ item.format }})</h3>
+    <form method="post" action="/contents/{{ item.id }}/checklist">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      {% for c in cek %}
+      <div class="row" style="margin:6px 0">
+        <span style="flex:1;font-size:13px">{{ '✅' if c.tercentang else '⬜' }} {{ c.butir }}</span>
+        <span class="hint">{{ c.actor_type or '-' }}</span>
+      </div>
+      {% endfor %}
+      <label>Ubah satu butir</label>
+      <div class="field-inline">
+        <div><select name="checklist_id">
+          {% for c in cek %}<option value="{{ c.id }}">{{ c.butir }}</option>{% endfor %}
+        </select></div>
+        <div><select name="tercentang"><option value="1">tercentang</option><option value="0">batalkan</option></select></div>
+        <div><button class="btn btn-sm" type="submit">Simpan</button></div>
+      </div>
+    </form>
+
+    <h3 style="margin-top:16px">Ubah status</h3>
+    <form method="post" action="/contents/{{ item.id }}/status">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label>Status tujuan (sah dari {{ STATUS_LABEL.get(item.status) }}: {{ transisi|join(', ') }})</label>
+      <select name="status">{% for s in transisi %}<option value="{{ s }}">{{ STATUS_LABEL.get(s, s) }}</option>{% endfor %}</select>
+      <div class="field-inline" style="margin-top:8px">
+        <div><label>Jadwal (untuk Terjadwal)</label><input type="date" name="jadwal_tayang"></div>
+        <div><label>Slot</label><select name="slot_waktu">{% for s in SLOTS %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select></div>
+      </div>
+      <div class="field-inline">
+        <div><label>Link posting (untuk Tayang)</label><input name="link_posting" placeholder="https://facebook.com/..."></div>
+        <div><label>Alasan (untuk Ditolak)</label><input name="reject_reason" minlength="10"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn btn-primary btn-sm" type="submit">Pindahkan</button>
+      </div>
+    </form>
+
+    <form method="post" action="/contents/{{ item.id }}/status" style="margin-top:10px">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="hidden" name="status" value="arsip">
+      <button class="btn btn-sm" type="submit">Arsipkan</button>
+      <span class="hint">Hook registry baris <code>asal=konten</code> dilepas saat arsip; baris seed tetap.</span>
+    </form>
+  </div>
+</div>
+
+<div class="split">
+  <div class="card">
+    <h3>Edit (membuat versi baru)</h3>
+    <form method="post" action="/contents/{{ item.id }}/edit">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label>Judul / hook</label><input name="judul_hook" value="{{ item.judul_hook }}" required>
+      <div class="field-inline">
+        <div><label>Pilar</label><select name="pilar">{% for p in pilar_list %}<option value="{{ p.slug }}" {{ 'selected' if item.pilar and item.pilar.slug == p.slug }}>{{ p.nama }}</option>{% endfor %}</select></div>
+        <div><label>Format</label><select name="format">{% for f in FORMATS %}<option value="{{ f }}" {{ 'selected' if item.format == f }}>{{ f }}</option>{% endfor %}</select></div>
+        <div><label>Kanal</label><select name="kanal">{% for k in KANALS %}<option value="{{ k }}" {{ 'selected' if item.kanal == k }}>{{ k }}</option>{% endfor %}</select></div>
+      </div>
+      <label>Naskah</label><textarea name="naskah_md">{{ item.naskah_md }}</textarea>
+      <div class="field-inline">
+        <div><label>Caption FB</label><input name="caption_fb" value="{{ item.caption_fb or '' }}"></div>
+        <div><label>CTA</label><select name="cta">{% for c in CTAS %}<option value="{{ c }}" {{ 'selected' if item.cta == c }}>{{ c }}</option>{% endfor %}</select></div>
+        <div><label>Hashtags</label><input name="hashtags" value="{{ item.hashtags or '' }}"></div>
+      </div>
+      <div class="field-inline">
+        <div><label>fact_level</label><select name="fact_level">{% for f in FACT_LEVELS %}<option value="{{ f }}" {{ 'selected' if item.fact_level == f }}>{{ f }}</option>{% endfor %}</select></div>
+        <div><label>Sumber dalil</label><input name="sumber_dalil" value="{{ item.sumber_dalil or '' }}"></div>
+        <div><label>Verifikator</label><input name="verifikator" value="{{ item.verifikator or '' }}"></div>
+      </div>
+      <label>Catatan revisi</label><input name="catatan">
+      <div class="row" style="margin-top:10px"><button class="btn btn-primary" type="submit">Simpan versi baru</button></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Aset</h3>
+    <form method="post" action="/contents/{{ item.id }}/assets" enctype="multipart/form-data">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="file" name="file" accept="image/png,image/jpeg,image/webp,image/gif" required>
+      <label>Alt</label><input name="alt">
+      <div class="row" style="margin-top:8px"><button class="btn btn-sm" type="submit">Unggah (maks 20 MB)</button></div>
+    </form>
+    <p class="hint">Validasi ekstensi + MIME + magic bytes. Video hanya URL (isi di catatan visual).</p>
+    {% for a in aset %}
+      <div class="mini">
+        <a href="/uploads/{{ a.path }}" target="_blank">{{ a.path }}</a>
+        <span class="hint">{{ a.jenis }} · {{ a.ukuran }} B</span>
+        <form method="post" action="/assets/{{ a.id }}/delete" style="display:inline">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <button class="btn btn-sm btn-err" type="submit">Hapus</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="hint">Belum ada aset.</p>
+    {% endfor %}
+
+    <h3 style="margin-top:16px">Metrik</h3>
+    <table>
+      <thead><tr><th>Tanggal</th><th>Reach</th><th>Like</th><th>Komen</th><th>Share</th></tr></thead>
+      <tbody>
+      {% for m in metrik %}
+        <tr><td>{{ m.capture_date }}</td><td>{{ m.reach }}</td><td>{{ m.likes }}</td><td>{{ m.komen }}</td><td>{{ m.share }}</td></tr>
+      {% else %}<tr><td colspan="5" class="muted">Belum ada snapshot.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    <a class="btn btn-sm" href="/metrics">Isi metrik</a>
+
+    <h3 style="margin-top:16px">Riwayat revisi (append-only)</h3>
+    {% for r in revisi %}
+      <details class="mini">
+        <summary><b>v{{ r.versi }}</b> · {{ r.actor_type }} · {{ r.dibuat }}</summary>
+        <p class="hint">{{ r.catatan or '-' }}</p>
+        <pre class="naskah">{{ r.naskah_md }}</pre>
+      </details>
+    {% else %}<p class="hint">Belum ada revisi.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}
