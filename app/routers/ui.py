@@ -143,7 +143,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), user: User = Depe
         db.scalars(
             select(ContentItem)
             .where(ContentItem.status == enums.STATUS_REVIEW, ContentItem.deleted_at.is_(None))
-            .order_by(ContentItem.submitted_at.asc().nullsfirst())
+            .order_by(ContentItem.submitted_at.asc())
         )
     )
     gagal = list(
@@ -284,7 +284,7 @@ def review_queue(request: Request, db: Session = Depends(get_db), user: User = D
         db.scalars(
             select(ContentItem)
             .where(ContentItem.status == enums.STATUS_REVIEW, ContentItem.deleted_at.is_(None))
-            .order_by(ContentItem.submitted_at.asc().nullsfirst())
+            .order_by(ContentItem.submitted_at.asc())
         )
     )
     detail = []

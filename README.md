@@ -170,6 +170,15 @@ curl -sS -X POST http://127.0.0.1:8099/api/v1/contents \
   menggeser arti `versi_terakhir` yang dipakai agent. **Mohon dikonfirmasi @content.**
 - **`decode` JSON rusak → 400**, bukan 500 (pernah 500 sebelum diperbaiki; lihat
   `docs/HASIL-VERIFIKASI.md`).
+- **Jangan pakai `.nullsfirst()` / `.nullslast()`** di `order_by`. SQLAlchemy menerjemahkannya
+  jadi klausa `NULLS FIRST/LAST` yang **tidak dikenal MariaDB** (`pymysql ... 1064`) sehingga
+  halaman Boss balas **500** — bug nyata yang ditemukan dari uji hidup MariaDB
+  (`docs/HASIL-VERIFIKASI.md` §7a), lolos dari pytest karena SQLite mendukung sintaks itu.
+  Di MariaDB/MySQL **dan** SQLite NULL sudah otomatis di depan untuk `ASC` dan di belakang
+  untuk `DESC`. Dijaga oleh `tests/test_sql_portabilitas.py`.
+- **Uji hidup jalur MariaDB** (termasuk 13 halaman Boss, bukan cuma API):
+  `BASE=http://127.0.0.1:8098 .venv/bin/python scripts/e2e-d18-live.py`. Butuh baris `user` Boss
+  dan token agent di DB — lihat `docs/HASIL-VERIFIKASI.md` §7b.
 - **Uji reels/queue di `smoke-api.sh` dilaporkan SKIP** kalau item belum `terjadwal` — karena
   approve+jadwal adalah keputusan Boss yang tidak punya jalur API. Versi otomatisnya ada di
   pytest (`tests/test_api.py`, `tests/test_review_ui.py`).

@@ -119,3 +119,44 @@ yang tersisa hanya data uji milik @hermes (6 item, 1 token).
 | Pemakaian RAM ≥24 jam | uji #11 butuh waktu | pantau RSS setelah deploy |
 | Redaksi header `Authorization` di access log | butuh vhost hidup | `grep -c 'Bearer' /var/log/nginx/fp.kelaswfa.my.id.access.log` → 0 |
 | `platform_post_id` dobel dari Facebook nyata | butuh posting sungguhan | jalur agent saat operasi pertama |
+
+---
+
+## 7. Verifikasi hidup di jalur MariaDB lewat UI Boss (7 Okt 2026, ~12:0x WIB)
+
+Yang **tidak** bisa ditangkap pytest berbasis SQLite: halaman Boss di MariaDB. Skrip
+`scripts/e2e-d18-live.py` menjalankan seluruh rantai lewat HTTP ke instance yang benar-benar
+berjalan di atas MariaDB (`127.0.0.1:8098`, `DATABASE_URL` dari `.env.mariadb`):
+
+```
+$ BASE=http://127.0.0.1:8098 .venv/bin/python scripts/e2e-d18-live.py
+A.  Login Boss sungguhan                          OK ×3   (POST /login 303; dashboard 200; menunggu=0 == outbox di DB)
+A2. Sapuan 13 halaman Boss                        OK ×1   (13/13 balas 200 di MariaDB)
+B.  Agent submit draft (token baru)               OK ×6   (taxonomy 200; POST 201 review; replay 200 + Idempotent-Replay;
+                                                          baris outbox kind=draft_agent_masuk_review status=kirim)
+C.  Dashboard & halaman outbox                    OK ×4   (menunggu=1; tautan #item; badge baris #13 = 'menunggu')
+D.  Klaim atomik (SQL docs/POLLER-OUTBOX.md)       OK ×4   (klaim 1 rowcount=1; klaim 2 rowcount=0;
+                                                          baris 'proses' tetap dihitung menunggu; badge 'proses (diklaim poller)')
+E.  Tutup klaim                                   OK ×4   (claim_token benar rowcount=1; token salah rowcount=0;
+                                                          dashboard menunggu=0; badge 'terkirim')
+F.  Bersih-bersih                                 OK ×2   (outbox kembali 0 baris; content_item kembali 6 baris)
+LULUS=24 GAGAL=0
+```
+
+### 7a. Bug nyata yang ditemukan (UI Boss mustahil dibuka di MariaDB)
+
+| Temuan | Bukti | Perbaikan |
+|---|---|---|
+| **`GET /` → 500 di MariaDB** | log uvicorn: `pymysql.err.ProgrammingError (1064, "... near 'NULLS FIRST' at line 3")`; SQL `... ORDER BY content_item.submitted_at ASC NULLS FIRST` | `.nullsfirst()`/`.nullslast()` dibuang dari 5 tempat (`app/routers/ui.py` ×2, `app/routers/ui_content.py` ×3). Di MariaDB/MySQL **dan** SQLite NULL sudah otomatis di depan untuk `ASC`, di belakang untuk `DESC` — diukur langsung: keduanya `ASC → [NULL,1,2]`, `DESC → [2,1,NULL]`. Dijaga `tests/test_sql_portabilitas.py` (gagal kalau pola itu muncul lagi di `app/`). |
+
+Lolos dari semua uji sebelumnya karena pytest memakai SQLite, yang **mendukung** `NULLS FIRST`.
+Verifikasi MariaDB sebelumnya hanya menyentuh `healthz`, `taxonomy`, `POST /contents`, `queue` —
+tidak satu pun halaman HTML. Karena itu sapuan 13 halaman (A2) sekarang jadi bagian tetap skrip ini.
+
+### 7b. Dua penghalang e2e yang dibuka (state dev, bukan produksi)
+
+| Hal | Keadaan sebelumnya | Sekarang |
+|---|---|---|
+| Baris `user` Boss di MariaDB | **0 baris** → login mustahil (verifikasi ke hash baris `user`) | dibuat 1 baris `boss` memakai `BOSS_PASSWORD_HASH` dari `.env` (hash-nya diverifikasi cocok dengan sandi dev; sandi tidak pernah dicetak/store) |
+| Token agent untuk probe | token di `var/` sudah basi → `401` | token baru `api_token.id=3` `agent-dev-8099` (scope `content:read,content:write,asset:write`), plaintext di `var/.token-agent` mode 600 |
+

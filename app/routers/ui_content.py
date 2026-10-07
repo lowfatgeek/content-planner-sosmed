@@ -85,7 +85,7 @@ def daftar(
         stmt = stmt.where(ContentItem.source == source)
     if pilar:
         stmt = stmt.join(Pilar).where(Pilar.slug == pilar)
-    items = list(db.scalars(stmt.order_by(ContentItem.diubah.desc().nullslast()).limit(300)))
+    items = list(db.scalars(stmt.order_by(ContentItem.diubah.desc()).limit(300)))
     return render(
         request,
         "contents.html",
@@ -103,7 +103,7 @@ def kanban(request: Request, db: Session = Depends(get_db), user: User = Depends
         db.scalars(
             select(ContentItem)
             .where(ContentItem.deleted_at.is_(None))
-            .order_by(ContentItem.diubah.desc().nullslast())
+            .order_by(ContentItem.diubah.desc())
             .limit(500)
         )
     )
@@ -321,7 +321,7 @@ def metrik(request: Request, db: Session = Depends(get_db), user: User = Depends
             .where(
                 ContentItem.status == enums.STATUS_TAYANG, ContentItem.deleted_at.is_(None)
             )
-            .order_by(ContentItem.tayang_at.desc().nullslast())
+            .order_by(ContentItem.tayang_at.desc())
             .limit(100)
         )
     )
